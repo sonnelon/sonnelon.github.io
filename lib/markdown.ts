@@ -15,7 +15,6 @@ export interface WriteupData {
   contentHtml?: string;
 }
 
-// Получить список всех райтапов, отсортированных по дате
 export function getSortedWriteupsData(): WriteupData[] {
   if (!fs.existsSync(writeupsDirectory)) {
     return [];
@@ -39,7 +38,6 @@ export function getSortedWriteupsData(): WriteupData[] {
   return allWriteupsData.sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
-// Получить данные конкретного райтапа по его slug (имени файла)
 export async function getWriteupData(slug: string): Promise<WriteupData> {
   const fullPath = path.join(writeupsDirectory, `${slug}.md`);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
