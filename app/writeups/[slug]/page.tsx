@@ -9,8 +9,12 @@ interface Props {
 
 export async function generateStaticParams() {
   const writeups = getSortedWriteupsData();
-  return writeups.map((w) => ({ slug: w.slug }));
+  return writeups.map((w) => ({
+    slug: w.slug, 
+  }));
 }
+
+export const dynamicParams = false;
 
 export default async function Writeup({ params }: Props) {
   const { slug } = await params;
