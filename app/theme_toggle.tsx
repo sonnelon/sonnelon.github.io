@@ -6,7 +6,6 @@ export default function ThemeToggle() {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    // Проверяем сохраненную тему или системные настройки
     const isDark = 
       localStorage.theme === 'dark' || 
       (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);

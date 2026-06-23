@@ -11,7 +11,7 @@ export default function Home() {
         
         <header className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-6 mb-10">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight font-mono">da710ff / writeups</h1>
+            <h1 className="text-2xl font-bold tracking-tight font-mono">da710ff / pwn writeups</h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
               Automated research, vulnerability analysis and CTF logs.
             </p>
