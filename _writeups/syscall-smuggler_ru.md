@@ -1,5 +1,5 @@
 ---
-title: "pwn.college - syscall-smuggler(ru)"
+title: "pwn.college - syscall-smuggler"
 date: "2026-06-22"
 category: "pwncollege"
 summary: "syscall-smuggler задачка в которой запрещены опкоды команд: syscall, int, sysenter."

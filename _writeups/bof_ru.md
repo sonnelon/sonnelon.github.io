@@ -1,5 +1,5 @@
 ---
-title: "pwn.college - bof(ru)"
+title: "pwn.college - bof"
 date: "2026-06-29"
 category: "pwnable.kr"
 summary: "bof простая задача на переполнение буфера"
@@ -80,7 +80,7 @@ b *func
 r
 ```
 далее мы делаем переход на вызов функции `gets` и передаем в нее какое то значение чтобы узнать начиная с какого адреса функция кладет данные на стек
-![screenshot][https://snipboard.io/NUOfjp.jpg]
+![screenshot](https://snipboard.io/NUOfjp.jpg)
 мы видим что функция кладет данные на стек начиная с адреса `0xffffc968`, значние которое я нам нужно переписать хранится по адресу `0xffffc9a0`
 теперь мы можем посчитать наш оффсет: `0xffffc9a0-0xffffc968-4=52` 
 далее нам не составит труда написать эксплойт:
@@ -111,4 +111,4 @@ p.send(payload)
 p.interactive()
 ```
 
-![screenshot][https://snipboard.io/4RkafG.jpg]
+![screenshot](https://snipboard.io/4RkafG.jpg)
