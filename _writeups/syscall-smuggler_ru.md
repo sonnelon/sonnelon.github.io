@@ -2,21 +2,13 @@
 title: "pwn.college - syscall-smuggler"
 date: "2026-06-22"
 category: "pwncollege"
-summary: "A syscall-smuggler challenge where the opcodes for `syscall`, `int`, and `sysenter` are forbidden."
+summary: "syscall-smuggler задачка в которой запрещены опкоды команд: syscall, int, sysenter."
 ---
 
-# syscall-smuggler
+##### syscall-smuggler задачка в которой запрещены байты команл: syscall, int, sysenter.
+окей хорошо но как мы можем сделать системный вызов если опкоды инструкций системных вызовов запрещены задачей.
 
-The goal of this challenge is to perform system calls even though the opcodes for the `syscall`, `int`, and `sysenter` instructions are forbidden.
-
-At first glance, this seems impossible. If all system call instructions are banned, how can we invoke the kernel?
-
-The answer is simple: we hide the opcode.
-
-The processor executes whatever the `rip` register points to. Therefore, instead of embedding a `syscall` instruction directly in our code, we can write its opcode (`0x0f05`) into executable memory and redirect `rip` to those bytes.
-
-Let's try this by writing a small assembly program that opens the `/flag` file:
-
+ответ: нам нужно их скрыть, процессор выполняет то на что указывает регистр `rip` следовательно для того чтобы исполнить системный вызов нам нужно направить `rip` на байты нашей инструкции `syscall` а именно `0x0f05`. И так давайте попробуем, напишем небольшой кусочек кода на ассемблере который открывает файл `/flag`:
 ```asm
 .intel_syntax noprefix
 .global _start
@@ -34,49 +26,32 @@ _start:
 flag:
     .string "/flag"
 ```
-
-Assemble and link it:
-
+Скомпилируем и слинкуем:
 ```sh
 as -o program.o program.s
 ```
-
 ```sh
 ld -o program -z execstack program.o
 ```
-
-The `-z execstack` option marks the stack as executable (the stack is non-executable by default).
-
-Now let's run the program under `strace` so we can observe the system calls it makes:
-
+`-z execstack` - включает исполняемый стек (по умолчанию стек не исполняемый)
+Теперь запустим наш `program` но через программу `strace` для того чтобы видеть системные вызовы которые дергает наша программа:
 ```sh
 strace ./program
 ```
-
-It works! This means we can use the same technique for every system call required to open the flag, read it, and write it to `stdout`.
-
+и это работает значит мы можем так проделать со всеми системными вызовами которые нам нужны для вывода нашего флага в stdout:
 ![screenshot](https://snipboard.io/OAryL4.jpg)
 
-However, you might have noticed that I also wrote the byte `0xc3` onto the stack, even though the `syscall` opcode is only `0x0f05`:
-
+но подождите ведь я говорил что syscall имеет опкод `0x0f05` в таком случае зачем я еще на стек пушу `0xc3`.
 ```asm
 mov byte ptr [rsp], 0x0f
 mov byte ptr [rsp+1], 0x05
 mov byte ptr [rsp+2], 0xc3
 ```
-
-The reason is straightforward.
-
-`0xc3` is the opcode for the `ret` instruction. The `call` instruction pushes a return address onto the stack, and after `syscall` finishes, execution continues with the next instruction—which, in our case, is `ret`. The `ret` instruction pops the return address from the stack and transfers execution back to the instruction following `call`.
-
-If we omit the `ret` opcode:
-
+на самом деле все просто `0xc3` - это опкод инструкции `ret` которая берет адрес возврата из стека который как раз таки пушит на стек инструкция `call` и переходит на него. Если мы так не сделаем.
 ![screenshot](https://snipboard.io/Lgqtc0.jpg)
+программа упадет с ошибкой так как процессор просто продолжит дальше идти по стеку и декодировать следующие байты и если он встретит байты которых нет в isa то процесс упадет с ошибкой
 
-the program crashes. After executing `syscall`, the processor simply continues decoding whatever bytes happen to follow on the stack. Eventually it encounters an invalid instruction encoding, causing the process to terminate with an illegal instruction or segmentation fault.
-
-Now that we've covered the necessary concepts, we can write the final Python exploit:
-
+Теперь когда мы прояснили все необходимые моменты напишем exploit на python
 ```python
 from pwn import *
 
