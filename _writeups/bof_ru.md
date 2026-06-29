@@ -1,5 +1,5 @@
 ---
-title: "pwn.college - bof"
+title: "pwnable.kr - bof"
 date: "2026-06-29"
 category: "pwnable.kr"
 summary: "bof простая задача на переполнение буфера"
