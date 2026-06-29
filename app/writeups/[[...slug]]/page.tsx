@@ -2,15 +2,21 @@ import { getWriteupData, getSortedWriteupsData } from '@/lib/markdown';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ThemeToggle from '@/app/theme_toggle';
+import ArticleHeader from '@/app/article_header';
 
 interface Props {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug?: string[] }>; 
 }
 
 export async function generateStaticParams() {
   const writeups = getSortedWriteupsData();
+
+  if (!writeups || writeups.length === 0) {
+    return [];
+  }
+
   return writeups.map((w) => ({
-    slug: w.slug, 
+    slug: [w.slug],
   }));
 }
 
@@ -18,9 +24,15 @@ export const dynamicParams = false;
 
 export default async function Writeup({ params }: Props) {
   const { slug } = await params;
-  
+
+  if (!slug || slug.length === 0) {
+    notFound();
+  }
+
+  const actualSlug = slug[0];
+
   try {
-    const data = await getWriteupData(slug);
+    const data = await getWriteupData(actualSlug);
 
     return (
       <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-200">
@@ -34,12 +46,14 @@ export default async function Writeup({ params }: Props) {
           </header>
 
           <article>
-            <header className="border-b border-zinc-200 dark:border-zinc-800 pb-4 mb-8">
-              <div className="text-xs font-mono text-zinc-500 mb-2">
-                TASK: {data.slug} // CAT: {data.category.toUpperCase()} // DATE: {data.date}
-              </div>
-              <h1 className="text-3xl font-bold tracking-tight">{data.title}</h1>
-            </header>
+            <ArticleHeader 
+              id={data.id}
+              currentLang={data.lang}
+              availableLangs={data.availableLangs}
+              title={data.title}
+              category={data.category}
+              date={data.date}
+            />
 
             <div 
               className="
@@ -55,7 +69,6 @@ export default async function Writeup({ params }: Props) {
               dangerouslySetInnerHTML={{ __html: data.contentHtml || '' }} 
             />
           </article>
-
         </main>
       </div>
     );
